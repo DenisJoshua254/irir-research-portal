@@ -1,0 +1,29 @@
+# render.yaml
+services:
+  - type: web
+    name: irir-research-portal
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: irir-postgres
+          property: connectionString
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        value: https://irir-research-portal.onrender.com
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+    buildCommand: npm run build
+    startCommand: node server.js
+
+databases:
+  - name: irir-postgres
+    databaseName: irir_db
+    user: irir_user
+    plan: free
