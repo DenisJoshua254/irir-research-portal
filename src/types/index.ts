@@ -26,7 +26,10 @@ export type ProjectWithDetails = Project & {
 };
 
 export type CommentWithUser = Comment & {
-  user: UserWithoutPassword;
+  user: {
+    id: string;
+    name: string;
+  };
 };
 
 declare module "next-auth" {

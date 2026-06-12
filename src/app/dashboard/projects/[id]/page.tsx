@@ -12,13 +12,14 @@ import DeleteProjectButton from "@/components/projects/DeleteProjectButton";
 export default async function ProjectDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   if (!session) return null;
 
   const project = await prisma.project.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       owner: { select: { id: true, name: true, email: true } },
       collaborations: {

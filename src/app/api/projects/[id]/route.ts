@@ -10,11 +10,12 @@ const updateSchema = z.object({
   status: z.enum(["ACTIVE", "COMPLETED", "ARCHIVED"]).optional(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const project = await prisma.project.findUnique({ where: { id: params.id } });
+  const project = await prisma.project.findUnique({ where: { id } });
   if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (project.ownerId !== session.user.id)
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -25,22 +26,23 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
 
   const updated = await prisma.project.update({
-    where: { id: params.id },
+    where: { id },
     data: parsed.data,
   });
 
   return NextResponse.json(updated);
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const project = await prisma.project.findUnique({ where: { id: params.id } });
+  const project = await prisma.project.findUnique({ where: { id } });
   if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (project.ownerId !== session.user.id)
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  await prisma.project.delete({ where: { id: params.id } });
+  await prisma.project.delete({ where: { id } });
   return NextResponse.json({ message: "Project deleted" });
 }

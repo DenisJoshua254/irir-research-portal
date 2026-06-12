@@ -7,15 +7,15 @@ import EditProjectForm from "@/components/projects/EditProjectForm";
 export default async function EditProjectPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   if (!session) redirect("/login");
 
   const project = await prisma.project.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
-
   if (!project || project.ownerId !== session.user.id) notFound();
 
   return (
